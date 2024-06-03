@@ -14,7 +14,7 @@ const RegisterPage = ({userExist}) => {
       >
         <Stack>
           <Stack>
-            {userExist?.userExist? <Otp /> : <Register/>}
+            {userExist? <Otp /> : <Register/>}
 
           </Stack>
         </Stack>

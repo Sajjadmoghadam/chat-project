@@ -6,11 +6,13 @@ import {
   TextField,
   Typography
 } from "@mui/material";
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import "./style.css";
 import { useForm } from "react-hook-form";
+import auth from "../../utils/auth";
 
 const LoginPage = ({ login }) => {
+  const {handlePhone}=useContext(auth)
   const country = [
     {
       code: "+7 840",
@@ -959,6 +961,12 @@ const LoginPage = ({ login }) => {
 
   const { register, handleSubmit, getValues, watch } = useForm();
   const inpNum = watch();
+ 
+  useEffect(()=>{
+    
+    handlePhone(getValues("phone"))
+    
+  },[getValues("phone")])
 
 
 const handleLogin=async(phone)=>{
