@@ -4,6 +4,7 @@ import LoginPage from "./Pages/Login/Index";
 import ChatPage from "./Pages/ChatPage/Index";
 import RegisterPage from "./Pages/Register/Index";
 import auth from "./utils/auth";
+import { CssBaseline } from "@mui/material";
 
 const App = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -36,6 +37,7 @@ const App = () => {
   return (
     <>
       <auth.Provider value={{ phone, handlePhone, token, handleToken }}>
+        <CssBaseline/>
         <Routes>
           <Route
             path="/"
