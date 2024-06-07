@@ -31,6 +31,7 @@ import SendIcon from "@mui/icons-material/Send";
 import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt";
 import AttachmentIcon from "@mui/icons-material/Attachment";
 import ContactCard from "../../Components/ContactCard";
+import SettingCard from "../../Components/SettingCard";
 
 const ChatPage = () => {
   const inputRef = useRef(null);
@@ -39,10 +40,15 @@ const ChatPage = () => {
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [openGroup, setOpenGroup] = React.useState(false);
   const [openChannel, setOpenChannel] = React.useState(false);
+  const [openSetting, setOpenSetting] = React.useState(false);
+
   const handleOpenGroup = () => setOpenGroup(true);
   const handleCloseGroup = () => setOpenGroup(false);
   const handleOpenChannel = () => setOpenChannel(true);
   const handleCloseChannel = () => setOpenChannel(false);
+  const handleOpenSetting = () => setOpenSetting(true);
+  const handleCloseSetting = () => setOpenSetting(false);
+
   const handleClick = () => {
     inputRef.current.click();
   };
@@ -456,13 +462,38 @@ const ChatPage = () => {
               </Box>
             </Modal>
             <ListItem disablePadding>
-              <ListItemButton>
+              <ListItemButton onClick={handleOpenSetting}>
                 <ListItemIcon>
                   <SettingsIcon />
                 </ListItemIcon>
                 <ListItemText primary={"Setting"} />
               </ListItemButton>
             </ListItem>
+            <Modal
+              open={openSetting}
+              onClose={handleCloseSetting}
+              
+            >
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: 400,
+                  height:600,
+                  bgcolor: "#fff",
+                  border: "2px solid white",
+                  borderRadius: "16px",
+                  boxShadow: 24,
+                  p: 4,
+                  display: "flex",
+                  flexDirection: "column"
+                }}
+              >
+                <SettingCard/>
+                </Box>
+                </Modal>
           </List>
         </Box>
       </Drawer>
