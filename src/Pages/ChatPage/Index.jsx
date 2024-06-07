@@ -8,29 +8,50 @@ import {
   InputAdornment,
   List,
   ListItem,
+  Input,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Modal,
   Stack,
   TextField,
-  Typography
+  Typography,
 } from "@mui/material";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
+
 import MenuIcon from "@mui/icons-material/Menu";
 import ForumIcon from "@mui/icons-material/Forum";
 import SearchIcon from "@mui/icons-material/Search";
-import React from "react";
+import React, { useRef, useState } from "react";
 import ChatCard from "../../Components/ChatCard/Index";
 import GroupsIcon from "@mui/icons-material/Groups";
 import SettingsIcon from "@mui/icons-material/Settings";
+<<<<<<< Updated upstream
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import SendIcon from '@mui/icons-material/Send';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import AttachmentIcon from '@mui/icons-material/Attachment';
+=======
+import ContactCard from "../../Components/ContactCard";
+>>>>>>> Stashed changes
 
 const ChatPage = () => {
+  const inputRef = useRef(null);
+  const [img, setImg] = useState();
+
+  const [openDrawer, setOpenDrawer] = React.useState(false);
   const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const handleClick = () => {
+    inputRef.current.click();
+  };
+  const handleImageChange = (event) => {
+    setImg(event.target.files[0]);
+  };
+
   const toggleDrawer = (newOpen) => () => {
-    setOpen(newOpen);
+    setOpenDrawer(newOpen);
   };
   return (
     <>
@@ -65,22 +86,22 @@ const ChatPage = () => {
                 borderRadius: "24px",
                 "& .MuiOutlinedInput-root": {
                   "& fieldset": {
-                    border: "none"
+                    border: "none",
                   },
                   "&:hover fieldset": {
-                    border: "none"
+                    border: "none",
                   },
                   "&.Mui-focused fieldset": {
-                    border: "none"
-                  }
-                }
+                    border: "none",
+                  },
+                },
               }}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
                     <SearchIcon />
                   </InputAdornment>
-                )
+                ),
               }}
               placeholder="search"
             />
@@ -167,12 +188,17 @@ const ChatPage = () => {
           </Stack>
         </Stack>
       </Stack>
+<<<<<<< Updated upstream
       <Drawer open={open} onClose={toggleDrawer(false)}>
         <Box
           sx={{ width: 300 }}
           role="presentation"
           onClick={toggleDrawer(false)}
         >
+=======
+      <Drawer open={openDrawer} onClose={toggleDrawer(false)}>
+        <Box sx={{ width: 300 }} role="presentation">
+>>>>>>> Stashed changes
           <Stack
             flexDirection={"row"}
             height={"100px"}
@@ -186,13 +212,84 @@ const ChatPage = () => {
           <Divider variant="fullWidth" />
           <List disablePadding>
             <ListItem disablePadding>
+<<<<<<< Updated upstream
               <ListItemButton>
+=======
+              <ListItemButton onClick={handleOpen}>
+>>>>>>> Stashed changes
                 <ListItemIcon>
                   <GroupsIcon />
                 </ListItemIcon>
                 <ListItemText primary={"New Group"} />
               </ListItemButton>
             </ListItem>
+<<<<<<< Updated upstream
+=======
+            <Modal
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: 350,
+                  bgcolor: "background.paper",
+                  border: "2px solid white",
+                  borderRadius: "16px",
+                  boxShadow: 24,
+                  p: 4,
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <Stack
+                  alignItems={"center"}
+                  flexDirection={"row"}
+                  justifyContent={"space-between"}
+                >
+                  <Stack
+                    alignItems={"center"}
+                    justifyContent={"center"}
+                    sx={{
+                      height: "70px",
+                      width: "70px",
+                      borderRadius: "50%",
+                      bgcolor: "#39a5db",
+                    }}
+                  >
+                    <IconButton onClick={handleClick}>
+                      <CameraAltIcon
+                        sx={{ color: "#fff", fontSize: "2.5rem" }}
+                      />
+                    </IconButton>
+                    <Input
+                      inputRef={inputRef}
+                      sx={{
+                        display: "none",
+                      }}
+                      type="file"
+                      onChange={handleImageChange}
+                    />
+                  </Stack>
+                  <Stack>
+                    <TextField
+                      id="standard-basic"
+                      label="Group Name"
+                      variant="standard"
+                    />
+                  </Stack>
+                </Stack>
+                <Stack mt={2}>
+                  <ContactCard />
+                </Stack>
+              </Box>
+            </Modal>
+>>>>>>> Stashed changes
             <ListItem disablePadding>
               <ListItemButton>
                 <ListItemIcon>
