@@ -17,7 +17,7 @@ export default function Otp() {
   const { register, handleSubmit, getValues } = useForm();
   const navigate = useNavigate();
   const HandleOtp=()=>{
-    fetch("http://127.0.0.1:5000/api/v1/auth/otp", {
+    fetch(process.env.REACT_APP_BASE_URL +"/api/v1/auth/otp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -28,6 +28,7 @@ export default function Otp() {
       .then((res) => res.json())
       .then((data) => {
         localStorage.setItem("token", data?.token);
+        localStorage.setItem("userData", JSON.stringify(data?.user));
         handleToken(data?.token)
         if (data?.token) {
           navigate("/");

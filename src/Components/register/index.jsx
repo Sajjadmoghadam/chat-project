@@ -34,12 +34,13 @@ const navigate = useNavigate()
     body.append("fullName", data.firstName + " " + data.lastName);
     body.append("phone", phone);
     console.log(data);
-    fetch("http://127.0.0.1:5000/api/v1/auth/register", {
+    fetch(process.env.REACT_APP_BASE_URL +"/api/v1/auth/register", {
       method: "POST",
       body: body
     }).then(res=>res.json()).then(data=>{
       console.log(data);
       localStorage.setItem("token",data?.token)
+      localStorage.setItem("userData", JSON.stringify(data?.user));
       handleToken(data?.token)
 
       if(data?.token){

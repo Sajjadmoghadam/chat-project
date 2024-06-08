@@ -19,7 +19,7 @@ const App = () => {
   };
   const navigate = useNavigate();
   const login = ({ phone }) => {
-    fetch("http://localhost:5000/api/v1/auth", {
+    fetch(process.env.REACT_APP_BASE_URL +"/api/v1/auth", {
       method: "POST",
       headers: {
         "content-type": "application/json"

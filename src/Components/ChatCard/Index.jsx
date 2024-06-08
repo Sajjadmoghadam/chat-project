@@ -1,17 +1,17 @@
 import { Avatar, Divider, ListItem, ListItemAvatar, ListItemButton, ListItemText } from "@mui/material";
 import React from "react";
 
-const ChatCard = () => {
+const ChatCard = ({avatar,title,lastMessage,id}) => {
   return (
     <>
-    <ListItem disablePadding>
+    <ListItem disablePadding id={id}>
       <ListItemButton alignItems="flex-start" >
         <ListItemAvatar>
-          <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+          <Avatar alt="Remy Sharp" src={avatar} />
         </ListItemAvatar>
         <ListItemText
-          primary="Brunch this weekend?"
-          secondary="salam key miyay khone"
+          primary={title}
+          secondary={lastMessage}
         />
       </ListItemButton>
       </ListItem>

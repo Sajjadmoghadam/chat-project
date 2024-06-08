@@ -18,11 +18,11 @@ import {
   Typography
 } from "@mui/material";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
-
+import Message from "../../Components/Message";
 import MenuIcon from "@mui/icons-material/Menu";
 import ForumIcon from "@mui/icons-material/Forum";
 import SearchIcon from "@mui/icons-material/Search";
-import React, { useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import ChatCard from "../../Components/ChatCard/Index";
 import GroupsIcon from "@mui/icons-material/Groups";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -32,8 +32,10 @@ import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt
 import AttachmentIcon from "@mui/icons-material/Attachment";
 import ContactCard from "../../Components/ContactCard";
 import SettingCard from "../../Components/SettingCard";
+import auth from "../../utils/auth";
 
 const ChatPage = () => {
+  const { token } = useContext(auth);
   const inputRef = useRef(null);
   const [img, setImg] = useState();
 
@@ -41,6 +43,7 @@ const ChatPage = () => {
   const [openGroup, setOpenGroup] = React.useState(false);
   const [openChannel, setOpenChannel] = React.useState(false);
   const [openSetting, setOpenSetting] = React.useState(false);
+  const [conversation, setConversation] = React.useState([]);
 
   const handleOpenGroup = () => setOpenGroup(true);
   const handleCloseGroup = () => setOpenGroup(false);
@@ -59,6 +62,42 @@ const ChatPage = () => {
   const toggleDrawer = (newOpen) => () => {
     setOpenDrawer(newOpen);
   };
+  useEffect(() => {
+    fetch(process.env.REACT_APP_BASE_URL + "/api/v1/conversation", {
+      method: "GET",
+      headers: {
+        authorization: "bearer" + " " + token,
+        "content-type": "application/json"
+      }
+    })
+      .then((res) => res.json())
+      .then((data) => setConversation(data.data.conversationIds));
+  }, []);
+  const conversationList = conversation?.map((e) => {
+    let privateTitle = "";
+    if (e.conversationType === "private") {
+      const { id } = JSON.parse(localStorage.getItem("userData"));
+      e?.members.map((z) => {
+        if (z.id === id) {
+          console.log(z);
+          privateTitle = z.fullName;
+        }
+      });
+    }
+    return (
+      <ChatCard
+        key={e}
+        id={e._id}
+        lastMessage={e?.messages?.at(-1)?.text}
+        title={
+          e.conversationType === "private"
+            ? privateTitle
+            : e.title
+        }
+        avatar={e.profile}
+      />
+    );
+  });
   return (
     <>
       <Stack flexDirection={"row"} width={"100%"} height={"100vh"} bgcolor={""}>
@@ -112,20 +151,7 @@ const ChatPage = () => {
             maxHeight={"100%"}
             sx={{ overflowY: "scroll" }}
           >
-            <List sx={{ width: "100%" }}>
-              <ChatCard />
-              <ChatCard />
-              <ChatCard />
-              <ChatCard />
-              <ChatCard />
-              <ChatCard />
-              <ChatCard />
-              <ChatCard />
-              <ChatCard />
-              <ChatCard />
-              <ChatCard />
-              <ChatCard />
-            </List>
+            <List sx={{ width: "100%" }}>{conversationList}</List>
           </Stack>
         </Stack>
         <Stack
@@ -167,6 +193,14 @@ const ChatPage = () => {
               height: "100%"
             }}
           >
+            <Message
+              userId={"165"}
+              date={"20:22"}
+              userName={"مهدی"}
+              message={
+                "دره آل مشهد یکی از زیباترین و جذاب‌ترین مناطق طبیعی استان خراسان رضوی است که هر ساله گردشگران زیادی را به خود جذب می‌کند. این دره با طبیعت بکر و دست‌نخورده، آبشارهای فصلی، چشمه‌های زلال و محیط کوهستانی خود، مقصدی ایده‌آل برای علاقه‌مندان به طبیعت و ماجراجویی است. در این مقاله، با توجه به اصول سئو و کلمات کلیدی پرجستجو، به معرفی جامع دره آل مشهد در پنج سرفصل اصلی پرداخته و هر کدام را به تفصیل توضیح می‌دهیم."
+              }
+            />
             {/* اینجا محتوای استک قرار می‌گیرد */}
           </Stack>
           <Stack direction={"row-reverse"} height={"60px"} width={"100%"}>
@@ -222,18 +256,14 @@ const ChatPage = () => {
                 <ListItemText primary={"New Group"} />
               </ListItemButton>
             </ListItem>
-            <Modal
-              open={openGroup}
-              onClose={handleCloseGroup}
-              
-            >
+            <Modal open={openGroup} onClose={handleCloseGroup}>
               <Box
                 sx={{
                   position: "absolute",
                   top: "50%",
                   left: "50%",
                   transform: "translate(-50%, -50%)",
-                  width: 350,
+                  width: 400,
                   bgcolor: "background.paper",
                   border: "2px solid white",
                   borderRadius: "16px",
@@ -277,6 +307,7 @@ const ChatPage = () => {
                       id="standard-basic"
                       label="Group Name"
                       variant="standard"
+                      fullWidth
                     />
                   </Stack>
                 </Stack>
@@ -315,21 +346,19 @@ const ChatPage = () => {
                     }}
                     mt={1}
                   >
-                    <ContactCard/>
-                    <ContactCard/>
-                    <ContactCard/>
-                    <ContactCard/>
-                    <ContactCard/>
-                    <ContactCard/>
-                    <ContactCard/>
-                    <ContactCard/>
-                    <ContactCard/>
+                    <ContactCard />
+                    <ContactCard />
+                    <ContactCard />
+                    <ContactCard />
+                    <ContactCard />
+                    <ContactCard />
+                    <ContactCard />
+                    <ContactCard />
+                    <ContactCard />
                   </Stack>
                 </Stack>
-                <Stack mt={1} >
-                  <Button variant="contained">
-                    Create
-                  </Button>
+                <Stack mt={1}>
+                  <Button variant="contained">Create</Button>
                 </Stack>
               </Box>
             </Modal>
@@ -353,7 +382,7 @@ const ChatPage = () => {
                   top: "50%",
                   left: "50%",
                   transform: "translate(-50%, -50%)",
-                  width: 350,
+                  width: 400,
                   bgcolor: "background.paper",
                   border: "2px solid white",
                   borderRadius: "16px",
@@ -399,16 +428,14 @@ const ChatPage = () => {
                       variant="standard"
                     />
                   </Stack>
-                  
                 </Stack>
                 <Stack mt={1} gap={1}>
-                <TextField
-                      id="standard-basic"
-                      label="Channel Id"
-                      variant="standard"
-                      size="small"
-
-                    />
+                  <TextField
+                    id="standard-basic"
+                    label="Channel Id"
+                    variant="standard"
+                    size="small"
+                  />
                   <TextField
                     size="small"
                     InputProps={{
@@ -443,21 +470,19 @@ const ChatPage = () => {
                     }}
                     mt={1}
                   >
-                    <ContactCard/>
-                    <ContactCard/>
-                    <ContactCard/>
-                    <ContactCard/>
-                    <ContactCard/>
-                    <ContactCard/>
-                    <ContactCard/>
-                    <ContactCard/>
-                    <ContactCard/>
+                    <ContactCard />
+                    <ContactCard />
+                    <ContactCard />
+                    <ContactCard />
+                    <ContactCard />
+                    <ContactCard />
+                    <ContactCard />
+                    <ContactCard />
+                    <ContactCard />
                   </Stack>
                 </Stack>
-                <Stack mt={1} >
-                  <Button variant="contained">
-                    Create
-                  </Button>
+                <Stack mt={1}>
+                  <Button variant="contained">Create</Button>
                 </Stack>
               </Box>
             </Modal>
