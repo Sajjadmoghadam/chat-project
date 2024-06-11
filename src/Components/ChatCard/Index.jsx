@@ -12,7 +12,8 @@ const ChatCard = ({avatar,title,lastMessage,id}) => {
         <ListItemText
           primary={title}
           secondary={lastMessage}
-        />
+        /> 
+        
       </ListItemButton>
       </ListItem>
       <Divider variant="fullWidth" component="li" />
