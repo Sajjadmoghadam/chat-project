@@ -90,7 +90,7 @@ export default function SettingCard({close}) {
     <>
       <Stack>
         <Stack alignSelf={"end"}>
-          <ClearIcon onClick={close}/>
+          <ClearIcon onClick={()=>close()}/>
         </Stack>
         <FormControl
           component="form"

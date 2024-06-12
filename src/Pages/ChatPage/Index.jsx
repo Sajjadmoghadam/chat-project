@@ -16,7 +16,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Input,
+  Input
 } from "@mui/material";
 import { DevTool } from "@hookform/devtools";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
@@ -41,7 +41,7 @@ const ChatPage = () => {
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors }
   } = useForm();
   const { token } = useContext(auth);
   const inputRef = useRef(null);
@@ -51,10 +51,12 @@ const ChatPage = () => {
   const [openGroup, setOpenGroup] = useState(false);
   const [openChannel, setOpenChannel] = useState(false);
   const [openSetting, setOpenSetting] = useState(false);
-  const [conversation, setConversation] = useState([]);
   const [search, setSearch] = useState("");
   const [searchContact, setSearchContact] = useState([]);
   const [checked, setChecked] = useState([]); // Ensure checked is an array
+  const [conversation, setConversation] = React.useState([]);
+  const [selectedConversation, setSelectConversation] = React.useState("");
+  const [conversationDetail, setConversationDetail] = React.useState();
 
   const handleOpenGroup = () => setOpenGroup(true);
   const handleCloseGroup = () => setOpenGroup(false);
@@ -62,6 +64,11 @@ const ChatPage = () => {
   const handleCloseChannel = () => setOpenChannel(false);
   const handleOpenSetting = () => setOpenSetting(true);
   const handleCloseSetting = () => setOpenSetting(false);
+  const userData = JSON.parse(localStorage.getItem("userData"));
+
+  const handleConversationId = (id) => {
+    setSelectConversation(id);
+  };
 
   const handleClick = () => {
     inputRef.current.click();
@@ -80,8 +87,8 @@ const ChatPage = () => {
       method: "GET",
       headers: {
         authorization: "bearer " + token,
-        "content-type": "application/json",
-      },
+        "content-type": "application/json"
+      }
     })
       .then((res) => res.json())
       .then((data) => {
@@ -100,12 +107,28 @@ const ChatPage = () => {
     });
   };
 
+  useEffect(() => {
+    fetch(
+      process.env.REACT_APP_BASE_URL +
+        `/api/v1/conversation/${selectedConversation}`,
+      {
+        method: "GET",
+        headers: {
+          authorization: "bearer" + " " + token,
+          "content-type": "application/json"
+        }
+      }
+    )
+      .then((res) => res.json())
+      .then((data) => setConversationDetail(data.data));
+  }, [selectedConversation]);
   const conversationList = conversation?.map((e) => {
     let privateTitle = "";
     if (e.conversationType === "private") {
       const { id } = JSON.parse(localStorage.getItem("userData"));
-      e?.members.forEach((z) => {
-        if (z.id === id) {
+      e?.members.map((z) => {
+        if (z.id !== id) {
+          console.log(z);
           privateTitle = z.fullName;
         }
       });
@@ -117,6 +140,7 @@ const ChatPage = () => {
         lastMessage={e?.messages?.at(-1)?.text}
         title={e.conversationType === "private" ? privateTitle : e.title}
         avatar={e.profile}
+        handleConversationId={handleConversationId}
       />
     );
   });
@@ -127,9 +151,9 @@ const ChatPage = () => {
         method: "POST",
         headers: {
           authorization: "bearer " + token,
-          "content-type": "application/json",
+          "content-type": "application/json"
         },
-        body: JSON.stringify({ search }),
+        body: JSON.stringify({ search })
       })
         .then((res) => res.json())
         .then((data) => {
@@ -153,9 +177,9 @@ const ChatPage = () => {
     fetch("http://localhost:5000/api/v1/conversation/group", {
       method: "POST",
       headers: {
-        authorization: "bearer " + token,
+        authorization: "bearer " + token
       },
-      body: formData,
+      body: formData
     })
       .then((res) => res.json())
       .then((data) => {
@@ -205,6 +229,17 @@ const ChatPage = () => {
         // Handle error
       });
   };
+
+  const messages = conversationDetail?.messages?.map((e) => {
+    return (
+      <Message
+        userId={e.senderId}
+        date={e.timestamps}
+        userName={e.fullName}
+        message={e.text}
+      />
+    );
+  });
   return (
     <>
       <Stack flexDirection={"row"} width={"100%"} height={"100vh"} bgcolor={""}>
@@ -233,22 +268,22 @@ const ChatPage = () => {
                 borderRadius: "24px",
                 "& .MuiOutlinedInput-root": {
                   "& fieldset": {
-                    border: "none",
+                    border: "none"
                   },
                   "&:hover fieldset": {
-                    border: "none",
+                    border: "none"
                   },
                   "&.Mui-focused fieldset": {
-                    border: "none",
-                  },
-                },
+                    border: "none"
+                  }
+                }
               }}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
                     <SearchIcon />
                   </InputAdornment>
-                ),
+                )
               }}
               placeholder="search"
               onChange={(e) => setSearch(e.target.value)}
@@ -262,83 +297,85 @@ const ChatPage = () => {
             <List sx={{ width: "100%" }}>{conversationList}</List>
           </Stack>
         </Stack>
-        <Stack
-          direction={"column"}
-          justifyContent={"space-between"}
-          borderLeft={"1px #cccccc solid"}
-          width={"75%"}
-          height={"100%"}
-        >
-          <Stack direction={"column"}>
-            <Stack
-              width={"100%"}
-              justifyContent={"space-between"}
-              height={"60px"}
-              bgcolor={"#fff"}
-              direction={"row"}
-              alignItems={"center"}
-            >
-              <Stack px={2} direction={"column"}>
-                <Typography variant="body1">همکاران حسابداری معین</Typography>
-                <Typography color={"gray"} variant="caption">
-                  50 members,2 online
-                </Typography>
-              </Stack>
-              <Stack direction={"row"} gap={1} px={2}>
-                <SearchIcon />
-                <MoreVertIcon />
+        {selectedConversation ? (
+          <Stack
+            direction={"column"}
+            justifyContent={"space-between"}
+            borderLeft={"1px #cccccc solid"}
+            width={"75%"}
+            height={"100%"}
+          >
+            <Stack direction={"column"}>
+              <Stack
+                width={"100%"}
+                justifyContent={"space-between"}
+                height={"60px"}
+                bgcolor={"#fff"}
+                direction={"row"}
+                alignItems={"center"}
+              >
+                <Stack px={2} direction={"column"}>
+                  <Typography variant="body1">
+                    {conversationDetail?.title}
+                  </Typography>
+                  <Typography color={"gray"} variant="caption">
+                    {conversationDetail?.members?.length} members
+                  </Typography>
+                </Stack>
+                <Stack direction={"row"} gap={1} px={2}>
+                  <SearchIcon />
+                  <MoreVertIcon />
+                </Stack>
               </Stack>
             </Stack>
-          </Stack>
-          <Stack
-            sx={{
-              backgroundImage:
-                "url(https://w0.peakpx.com/wallpaper/425/514/HD-wallpaper-telegram-pattern-art-patterns.jpg)",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              width: "100%",
-              height: "100%",
-            }}
-          >
-            <Message
-              userId={"165"}
-              date={"20:22"}
-              userName={"مهدی"}
-              message={
-                "دره آل مشهد یکی از زیباترین و جذاب‌ترین مناطق طبیعی استان خراسان رضوی است که هر ساله گردشگران زیادی را به خود جذب می‌کند. این دره با طبیعت بکر و دست‌نخورده، آبشارهای فصلی، چشمه‌های زلال و محیط کوهستانی خود، مقصدی ایده‌آل برای علاقه‌مندان به طبیعت و ماجراجویی است. در این مقاله، با توجه به اصول سئو و کلمات کلیدی پرجستجو، به معرفی جامع دره آل مشهد در پنج سرفصل اصلی پرداخته و هر کدام را به تفصیل توضیح می‌دهیم."
-              }
-            />
-          </Stack>
-          <Stack direction={"row-reverse"} height={"60px"} width={"100%"}>
-            <Button>
-              <SendIcon />
-            </Button>
-            <Button>
-              <SentimentSatisfiedAltIcon style={{ color: "gray" }} />
-            </Button>
-            <TextField
-              fullWidth
-              placeholder="Write a message..."
+            <Stack
               sx={{
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    border: "none",
-                  },
-                  "&:hover fieldset": {
-                    border: "none",
-                  },
-                  "&.Mui-focused fieldset": {
-                    border: "none",
-                  },
-                },
+                backgroundImage:
+                  "url(https://w0.peakpx.com/wallpaper/425/514/HD-wallpaper-telegram-pattern-art-patterns.jpg)",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                width: "100%",
+                height: "100%",
+                justifyContent: "end"
               }}
-            />
-            <Button sx={{ padding: "0" }}>
-              <AttachmentIcon style={{ color: "gray" }} />
-            </Button>
+            >
+              {messages}
+              {/* اینجا محتوای استک قرار می‌گیرد */}
+            </Stack>
+            <Stack direction={"row-reverse"} height={"60px"} width={"100%"}>
+              <Button>
+                <SendIcon />
+              </Button>
+              <Button>
+                <SentimentSatisfiedAltIcon style={{ color: "gray" }} />
+              </Button>
+
+              <TextField
+                fullWidth
+                placeholder="Write a message..."
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      border: "none"
+                    },
+                    "&:hover fieldset": {
+                      border: "none"
+                    },
+                    "&.Mui-focused fieldset": {
+                      border: "none"
+                    }
+                  }
+                }}
+              />
+              <Button sx={{ padding: "0" }}>
+                <AttachmentIcon style={{ color: "gray" }} />
+              </Button>
+            </Stack>
           </Stack>
-        </Stack>
+        ) : (
+          <Stack width={"75%"} height={"100%"} bgcolor={"aqua"}></Stack>
+        )}
       </Stack>
       <Drawer open={openDrawer} onClose={toggleDrawer(false)}>
         <Box sx={{ width: 300 }} role="presentation">
@@ -349,8 +386,13 @@ const ChatPage = () => {
             p={2}
             alignItems={"center"}
           >
-            <Avatar />
-            <Typography>moghadam</Typography>
+            <Avatar
+              src={
+                process.env.REACT_APP_BASE_URL + userData.profilePhoto.at(-1)
+              }
+            />
+
+            <Typography>{userData.fullName}</Typography>
           </Stack>
           <Divider variant="fullWidth" />
           <List disablePadding>
@@ -376,7 +418,7 @@ const ChatPage = () => {
                   boxShadow: 24,
                   p: 4,
                   display: "flex",
-                  flexDirection: "column",
+                  flexDirection: "column"
                 }}
               >
                 <Stack
@@ -391,7 +433,7 @@ const ChatPage = () => {
                       height: "70px",
                       width: "70px",
                       borderRadius: "50%",
-                      bgcolor: "#39a5db",
+                      bgcolor: "#39a5db"
                     }}
                   >
                     {img ? (
@@ -401,7 +443,7 @@ const ChatPage = () => {
                         style={{
                           height: "70px",
                           width: "70px",
-                          borderRadius: "50%",
+                          borderRadius: "50%"
                         }}
                       />
                     ) : (
@@ -414,7 +456,7 @@ const ChatPage = () => {
                     <Input
                       inputRef={inputRef}
                       sx={{
-                        display: "none",
+                        display: "none"
                       }}
                       type="file"
                       onChange={handleImageChange}
@@ -438,22 +480,22 @@ const ChatPage = () => {
                         <InputAdornment position="end">
                           <SearchIcon />
                         </InputAdornment>
-                      ),
+                      )
                     }}
                     sx={{
                       backgroundColor: "#F1F1F1",
                       borderRadius: "24px",
                       "& .MuiOutlinedInput-root": {
                         "& fieldset": {
-                          border: "none",
+                          border: "none"
                         },
                         "&:hover fieldset": {
-                          border: "none",
+                          border: "none"
                         },
                         "&.Mui-focused fieldset": {
-                          border: "none",
-                        },
-                      },
+                          border: "none"
+                        }
+                      }
                     }}
                     onChange={(e) => {
                       setSearch(e.target.value);
@@ -464,7 +506,7 @@ const ChatPage = () => {
                       backgroundColor: "#F1F1F1",
                       borderRadius: "16px",
                       maxHeight: "250px",
-                      overflowY: "scroll",
+                      overflowY: "scroll"
                     }}
                     mt={1}
                   >
@@ -518,7 +560,7 @@ const ChatPage = () => {
                   boxShadow: 24,
                   p: 4,
                   display: "flex",
-                  flexDirection: "column",
+                  flexDirection: "column"
                 }}
               >
                 <Stack
@@ -533,7 +575,7 @@ const ChatPage = () => {
                       height: "70px",
                       width: "70px",
                       borderRadius: "50%",
-                      bgcolor: "#39a5db",
+                      bgcolor: "#39a5db"
                     }}
                   >
                     {img ? (
@@ -556,7 +598,7 @@ const ChatPage = () => {
                     <Input
                       inputRef={inputRef}
                       sx={{
-                        display: "none",
+                        display: "none"
                       }}
                       type="file"
                       onChange={handleImageChange}
@@ -586,22 +628,22 @@ const ChatPage = () => {
                         <InputAdornment position="end">
                           <SearchIcon />
                         </InputAdornment>
-                      ),
+                      )
                     }}
                     sx={{
                       backgroundColor: "#F1F1F1",
                       borderRadius: "24px",
                       "& .MuiOutlinedInput-root": {
                         "& fieldset": {
-                          border: "none",
+                          border: "none"
                         },
                         "&:hover fieldset": {
-                          border: "none",
+                          border: "none"
                         },
                         "&.Mui-focused fieldset": {
-                          border: "none",
-                        },
-                      },
+                          border: "none"
+                        }
+                      }
                     }}
                     onChange={(e) => {
                       setSearch(e.target.value);
@@ -612,7 +654,7 @@ const ChatPage = () => {
                       backgroundColor: "#F1F1F1",
                       borderRadius: "16px",
                       maxHeight: "250px",
-                      overflowY: "scroll",
+                      overflowY: "scroll"
                     }}
                     mt={1}
                   >
@@ -657,7 +699,7 @@ const ChatPage = () => {
                   boxShadow: 24,
                   p: 4,
                   display: "flex",
-                  flexDirection: "column",
+                  flexDirection: "column"
                 }}
               >
                 <SettingCard close={handleCloseSetting} />
