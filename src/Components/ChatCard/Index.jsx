@@ -7,7 +7,7 @@ const ChatCard = ({avatar,title,lastMessage,id}) => {
     <ListItem disablePadding id={id}>
       <ListItemButton alignItems="flex-start" >
         <ListItemAvatar>
-          <Avatar alt="Remy Sharp" src={avatar} />
+          <Avatar alt="Remy Sharp" src={process.env.REACT_APP_BASE_URL+avatar} />
         </ListItemAvatar>
         <ListItemText
           primary={title}
