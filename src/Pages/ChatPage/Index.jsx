@@ -62,7 +62,7 @@ const ChatPage = () => {
   const handleCloseChannel = () => setOpenChannel(false);
   const handleOpenSetting = () => setOpenSetting(true);
   const handleCloseSetting = () => setOpenSetting(false);
-
+  const userData = JSON.parse(localStorage.getItem('userData'))
   const handleClick = () => {
     inputRef.current.click();
   };
@@ -85,7 +85,7 @@ const ChatPage = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        setConversation(data.data.conversationIds);
+        setConversation(data?.data.users);
       });
   }, [token]);
 
@@ -313,8 +313,8 @@ const ChatPage = () => {
             p={2}
             alignItems={"center"}
           >
-            <Avatar />
-            <Typography>moghadam</Typography>
+           <Avatar src={process.env.REACT_APP_BASE_URL+userData.profilePhoto.at(-1)}/>
+            <Typography>{userData.fullName}</Typography>
           </Stack>
           <Divider variant="fullWidth" />
           <List disablePadding>
@@ -602,7 +602,7 @@ const ChatPage = () => {
                   flexDirection: "column",
                 }}
               >
-                <SettingCard />
+                <SettingCard close={handleCloseSetting}/>
               </Box>
             </Modal>
           </List>
