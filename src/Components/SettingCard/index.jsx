@@ -167,6 +167,7 @@ export default function SettingCard({close}) {
             {...register("fullName")}
           />
           <TextField
+          disabled
             type="number"
             sx={{ width: "100%" }}
             label="Phone number"
