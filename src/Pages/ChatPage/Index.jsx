@@ -159,12 +159,12 @@ const ChatPage = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data)
-        if(data.status='success'){
-          alert('create group successfully')
-          window.location.reload()
-        }else{
-          alert('create group error')
+        console.log(data);
+        if ((data.status = "success")) {
+          alert("create group successfully");
+          window.location.reload();
+        } else {
+          alert("create group error");
         }
       })
       .catch((error) => {
@@ -172,7 +172,39 @@ const ChatPage = () => {
         // Handle error
       });
   };
-
+  const createChannel = (data) => {
+    const members = searchContact
+      .filter((user) => checked.includes(user._id))
+      .map((user) => user._id);
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("conversationName", data.conversationName);
+    formData.append("members", JSON.stringify(members));
+    if (img) {
+      formData.append("file", img);
+    }
+    fetch("http://localhost:5000/api/v1/conversation/channel", {
+      method: "POST",
+      headers: {
+        authorization: "bearer " + token,
+      },
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if ((data.status = "success")) {
+          alert("create channel successfully");
+          window.location.reload();
+        } else {
+          alert("create channel error");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        // Handle error
+      });
+  };
   return (
     <>
       <Stack flexDirection={"row"} width={"100%"} height={"100vh"} bgcolor={""}>
@@ -450,7 +482,10 @@ const ChatPage = () => {
                   </Stack>
                 </Stack>
                 <Stack mt={1}>
-                  <Button onClick={handleSubmit(createGroup)} variant="contained">
+                  <Button
+                    onClick={handleSubmit(createGroup)}
+                    variant="contained"
+                  >
                     Create
                   </Button>
                 </Stack>
@@ -501,11 +536,23 @@ const ChatPage = () => {
                       bgcolor: "#39a5db",
                     }}
                   >
-                    <IconButton onClick={handleClick}>
-                      <CameraAltIcon
-                        sx={{ color: "#fff", fontSize: "2.5rem" }}
+                    {img ? (
+                      <img
+                        src={URL.createObjectURL(img)}
+                        alt="Preview"
+                        style={{
+                          height: "70px",
+                          width: "70px",
+                          borderRadius: "50%",
+                        }}
                       />
-                    </IconButton>
+                    ) : (
+                      <IconButton onClick={handleClick}>
+                        <CameraAltIcon
+                          sx={{ color: "#fff", fontSize: "2.5rem" }}
+                        />
+                      </IconButton>
+                    )}
                     <Input
                       inputRef={inputRef}
                       sx={{
@@ -520,6 +567,7 @@ const ChatPage = () => {
                       id="standard-basic"
                       label="Channel Name"
                       variant="standard"
+                      {...register("title")}
                     />
                   </Stack>
                 </Stack>
@@ -529,6 +577,7 @@ const ChatPage = () => {
                     label="Channel Id"
                     variant="standard"
                     size="small"
+                    {...register("conversationName")}
                   />
                   <TextField
                     size="small"
@@ -554,6 +603,9 @@ const ChatPage = () => {
                         },
                       },
                     }}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                    }}
                   />
                   <Stack
                     sx={{
@@ -564,11 +616,21 @@ const ChatPage = () => {
                     }}
                     mt={1}
                   >
-                    {/* contact cards */}
+                    {searchContact.map((user) => (
+                      <ContactCard
+                        key={user._id}
+                        id={user._id}
+                        profile={user.profile}
+                        userName={user.userName}
+                        fullName={user.fullName}
+                        handleToggle={handleToggle}
+                        checked={checked.includes(user._id)}
+                      />
+                    ))}
                   </Stack>
                 </Stack>
                 <Stack mt={1}>
-                  <Button variant="contained">Create</Button>
+                  <Button onClick={handleSubmit(createChannel)} variant="contained">Create</Button>
                 </Stack>
               </Box>
             </Modal>
