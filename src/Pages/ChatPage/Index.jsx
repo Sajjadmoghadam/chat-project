@@ -150,7 +150,6 @@ const ChatPage = () => {
     if (img) {
       formData.append("file", img);
     }
-
     fetch("http://localhost:5000/api/v1/conversation/group", {
       method: "POST",
       headers: {
@@ -160,8 +159,13 @@ const ChatPage = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
-        // Handle success
+        console.log(data)
+        if(data.status='success'){
+          alert('create group successfully')
+          window.location.reload()
+        }else{
+          alert('create group error')
+        }
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -560,15 +564,7 @@ const ChatPage = () => {
                     }}
                     mt={1}
                   >
-                    <ContactCard />
-                    <ContactCard />
-                    <ContactCard />
-                    <ContactCard />
-                    <ContactCard />
-                    <ContactCard />
-                    <ContactCard />
-                    <ContactCard />
-                    <ContactCard />
+                    {/* contact cards */}
                   </Stack>
                 </Stack>
                 <Stack mt={1}>
