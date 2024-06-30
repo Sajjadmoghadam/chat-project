@@ -16,9 +16,10 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Input
+  Input,
 } from "@mui/material";
 import { DevTool } from "@hookform/devtools";
+import PersonIcon from "@mui/icons-material/Person";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import Message from "../../Components/Message";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -41,13 +42,14 @@ const ChatPage = () => {
     register,
     handleSubmit,
     control,
-    formState: { errors }
+    formState: { errors },
   } = useForm();
   const { token } = useContext(auth);
   const inputRef = useRef(null);
   const [img, setImg] = useState(null);
 
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [openPrivate, setOpenPrivate] = useState(false);
   const [openGroup, setOpenGroup] = useState(false);
   const [openChannel, setOpenChannel] = useState(false);
   const [openSetting, setOpenSetting] = useState(false);
@@ -57,7 +59,8 @@ const ChatPage = () => {
   const [conversation, setConversation] = React.useState([]);
   const [selectedConversation, setSelectConversation] = React.useState("");
   const [conversationDetail, setConversationDetail] = React.useState();
-
+  const handleOpenPrivate = () => setOpenPrivate(true);
+  const handleClosePrivate = () => setOpenPrivate(false);
   const handleOpenGroup = () => setOpenGroup(true);
   const handleCloseGroup = () => setOpenGroup(false);
   const handleOpenChannel = () => setOpenChannel(true);
@@ -87,8 +90,8 @@ const ChatPage = () => {
       method: "GET",
       headers: {
         authorization: "bearer " + token,
-        "content-type": "application/json"
-      }
+        "content-type": "application/json",
+      },
     })
       .then((res) => res.json())
       .then((data) => {
@@ -96,7 +99,7 @@ const ChatPage = () => {
       });
   }, [token]);
 
-  const handleToggle = (id) => {
+  const handleToggle = (id,fullName,profile) => {
     setChecked((prevChecked) => {
       const currentIndex = prevChecked.indexOf(id);
       if (currentIndex === -1) {
@@ -115,8 +118,8 @@ const ChatPage = () => {
         method: "GET",
         headers: {
           authorization: "bearer" + " " + token,
-          "content-type": "application/json"
-        }
+          "content-type": "application/json",
+        },
       }
     )
       .then((res) => res.json())
@@ -127,9 +130,8 @@ const ChatPage = () => {
     if (e.conversationType === "private") {
       const { id } = JSON.parse(localStorage.getItem("userData"));
       e?.members.map((z) => {
-        if (z.id !== id) {
-          console.log(z);
-          privateTitle = z.fullName;
+        if (z?.id === id) {
+          privateTitle = z?.fullName;
         }
       });
     }
@@ -151,9 +153,9 @@ const ChatPage = () => {
         method: "POST",
         headers: {
           authorization: "bearer " + token,
-          "content-type": "application/json"
+          "content-type": "application/json",
         },
-        body: JSON.stringify({ search })
+        body: JSON.stringify({ search }),
       })
         .then((res) => res.json())
         .then((data) => {
@@ -167,7 +169,6 @@ const ChatPage = () => {
   const createGroup = (data) => {
     const members = searchContact
       .filter((user) => checked.includes(user._id))
-      .map((user) => user._id);
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("members", JSON.stringify(members));
@@ -177,9 +178,9 @@ const ChatPage = () => {
     fetch("http://localhost:5000/api/v1/conversation/group", {
       method: "POST",
       headers: {
-        authorization: "bearer " + token
+        authorization: "bearer " + token,
       },
-      body: formData
+      body: formData,
     })
       .then((res) => res.json())
       .then((data) => {
@@ -199,7 +200,6 @@ const ChatPage = () => {
   const createChannel = (data) => {
     const members = searchContact
       .filter((user) => checked.includes(user._id))
-      .map((user) => user._id);
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("conversationName", data.conversationName);
@@ -240,6 +240,32 @@ const ChatPage = () => {
       />
     );
   });
+  const createPrivate=()=>{
+    const members = searchContact
+      .filter((user) => checked.includes(user._id))
+      .map((user) => user._id);
+      console.log(members)
+    fetch("http://localhost:5000/api/v1/conversation/private", {
+      method: "POST",
+      headers: {
+        authorization: "bearer " + token,
+      },
+      body: JSON.stringify({chatterId:{id:members[0]}}),
+    })
+    .then((res) => res.json())
+      .then((data) => {
+        if ((data.status = "success")) {
+          alert("create private chat successfully");
+          window.location.reload();
+        } else {
+          alert("create private chat error");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        // Handle error
+      });
+};
   return (
     <>
       <Stack flexDirection={"row"} width={"100%"} height={"100vh"} bgcolor={""}>
@@ -268,22 +294,22 @@ const ChatPage = () => {
                 borderRadius: "24px",
                 "& .MuiOutlinedInput-root": {
                   "& fieldset": {
-                    border: "none"
+                    border: "none",
                   },
                   "&:hover fieldset": {
-                    border: "none"
+                    border: "none",
                   },
                   "&.Mui-focused fieldset": {
-                    border: "none"
-                  }
-                }
+                    border: "none",
+                  },
+                },
               }}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
                     <SearchIcon />
                   </InputAdornment>
-                )
+                ),
               }}
               placeholder="search"
               onChange={(e) => setSearch(e.target.value)}
@@ -337,7 +363,7 @@ const ChatPage = () => {
                 backgroundRepeat: "no-repeat",
                 width: "100%",
                 height: "100%",
-                justifyContent: "end"
+                justifyContent: "end",
               }}
             >
               {messages}
@@ -357,15 +383,15 @@ const ChatPage = () => {
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": {
-                      border: "none"
+                      border: "none",
                     },
                     "&:hover fieldset": {
-                      border: "none"
+                      border: "none",
                     },
                     "&.Mui-focused fieldset": {
-                      border: "none"
-                    }
-                  }
+                      border: "none",
+                    },
+                  },
                 }}
               />
               <Button sx={{ padding: "0" }}>
@@ -397,6 +423,103 @@ const ChatPage = () => {
           <Divider variant="fullWidth" />
           <List disablePadding>
             <ListItem disablePadding>
+              <ListItemButton onClick={handleOpenPrivate}>
+                <ListItemIcon>
+                  <PersonIcon />
+                </ListItemIcon>
+                <ListItemText primary={"New Chat Private"} />
+              </ListItemButton>
+            </ListItem>
+            <Modal
+              open={openPrivate}
+              onClose={handleClosePrivate}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: 400,
+                  bgcolor: "background.paper",
+                  border: "2px solid white",
+                  borderRadius: "16px",
+                  boxShadow: 24,
+                  p: 4,
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <Stack
+                  alignItems={"center"}
+                  flexDirection={"row"}
+                  justifyContent={"space-between"}
+                >
+                </Stack>
+                <Stack mt={1} gap={1}>
+                  <TextField
+                    size="small"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <SearchIcon />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{
+                      backgroundColor: "#F1F1F1",
+                      borderRadius: "24px",
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          border: "none",
+                        },
+                        "&:hover fieldset": {
+                          border: "none",
+                        },
+                        "&.Mui-focused fieldset": {
+                          border: "none",
+                        },
+                      },
+                    }}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                    }}
+                  />
+                  <Stack
+                    sx={{
+                      backgroundColor: "#F1F1F1",
+                      borderRadius: "16px",
+                      maxHeight: "250px",
+                      overflowY: "scroll",
+                    }}
+                    mt={1}
+                  >
+                    {searchContact.map((user) => (
+                      <ContactCard
+                        key={user._id}
+                        id={user._id}
+                        profile={user.profile}
+                        userName={user.userName}
+                        fullName={user.fullName}
+                        handleToggle={handleToggle}
+                        checked={checked.includes(user._id)}
+                      />
+                    ))}
+                  </Stack>
+                </Stack>
+                <Stack mt={1}>
+                  <Button
+                    onClick={handleSubmit(createPrivate)}
+                    variant="contained"
+                  >
+                    Create
+                  </Button>
+                </Stack>
+              </Box>
+            </Modal>
+            <ListItem disablePadding>
               <ListItemButton onClick={handleOpenGroup}>
                 <ListItemIcon>
                   <GroupsIcon />
@@ -418,7 +541,7 @@ const ChatPage = () => {
                   boxShadow: 24,
                   p: 4,
                   display: "flex",
-                  flexDirection: "column"
+                  flexDirection: "column",
                 }}
               >
                 <Stack
@@ -433,7 +556,7 @@ const ChatPage = () => {
                       height: "70px",
                       width: "70px",
                       borderRadius: "50%",
-                      bgcolor: "#39a5db"
+                      bgcolor: "#39a5db",
                     }}
                   >
                     {img ? (
@@ -443,7 +566,7 @@ const ChatPage = () => {
                         style={{
                           height: "70px",
                           width: "70px",
-                          borderRadius: "50%"
+                          borderRadius: "50%",
                         }}
                       />
                     ) : (
@@ -456,7 +579,7 @@ const ChatPage = () => {
                     <Input
                       inputRef={inputRef}
                       sx={{
-                        display: "none"
+                        display: "none",
                       }}
                       type="file"
                       onChange={handleImageChange}
@@ -480,22 +603,22 @@ const ChatPage = () => {
                         <InputAdornment position="end">
                           <SearchIcon />
                         </InputAdornment>
-                      )
+                      ),
                     }}
                     sx={{
                       backgroundColor: "#F1F1F1",
                       borderRadius: "24px",
                       "& .MuiOutlinedInput-root": {
                         "& fieldset": {
-                          border: "none"
+                          border: "none",
                         },
                         "&:hover fieldset": {
-                          border: "none"
+                          border: "none",
                         },
                         "&.Mui-focused fieldset": {
-                          border: "none"
-                        }
-                      }
+                          border: "none",
+                        },
+                      },
                     }}
                     onChange={(e) => {
                       setSearch(e.target.value);
@@ -506,7 +629,7 @@ const ChatPage = () => {
                       backgroundColor: "#F1F1F1",
                       borderRadius: "16px",
                       maxHeight: "250px",
-                      overflowY: "scroll"
+                      overflowY: "scroll",
                     }}
                     mt={1}
                   >
@@ -560,7 +683,7 @@ const ChatPage = () => {
                   boxShadow: 24,
                   p: 4,
                   display: "flex",
-                  flexDirection: "column"
+                  flexDirection: "column",
                 }}
               >
                 <Stack
@@ -575,7 +698,7 @@ const ChatPage = () => {
                       height: "70px",
                       width: "70px",
                       borderRadius: "50%",
-                      bgcolor: "#39a5db"
+                      bgcolor: "#39a5db",
                     }}
                   >
                     {img ? (
@@ -598,7 +721,7 @@ const ChatPage = () => {
                     <Input
                       inputRef={inputRef}
                       sx={{
-                        display: "none"
+                        display: "none",
                       }}
                       type="file"
                       onChange={handleImageChange}
@@ -628,22 +751,22 @@ const ChatPage = () => {
                         <InputAdornment position="end">
                           <SearchIcon />
                         </InputAdornment>
-                      )
+                      ),
                     }}
                     sx={{
                       backgroundColor: "#F1F1F1",
                       borderRadius: "24px",
                       "& .MuiOutlinedInput-root": {
                         "& fieldset": {
-                          border: "none"
+                          border: "none",
                         },
                         "&:hover fieldset": {
-                          border: "none"
+                          border: "none",
                         },
                         "&.Mui-focused fieldset": {
-                          border: "none"
-                        }
-                      }
+                          border: "none",
+                        },
+                      },
                     }}
                     onChange={(e) => {
                       setSearch(e.target.value);
@@ -654,7 +777,7 @@ const ChatPage = () => {
                       backgroundColor: "#F1F1F1",
                       borderRadius: "16px",
                       maxHeight: "250px",
-                      overflowY: "scroll"
+                      overflowY: "scroll",
                     }}
                     mt={1}
                   >
@@ -672,7 +795,12 @@ const ChatPage = () => {
                   </Stack>
                 </Stack>
                 <Stack mt={1}>
-                  <Button onClick={handleSubmit(createChannel)} variant="contained">Create</Button>
+                  <Button
+                    onClick={handleSubmit(createChannel)}
+                    variant="contained"
+                  >
+                    Create
+                  </Button>
                 </Stack>
               </Box>
             </Modal>
@@ -699,7 +827,7 @@ const ChatPage = () => {
                   boxShadow: 24,
                   p: 4,
                   display: "flex",
-                  flexDirection: "column"
+                  flexDirection: "column",
                 }}
               >
                 <SettingCard close={handleCloseSetting} />
